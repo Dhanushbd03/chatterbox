@@ -66,6 +66,7 @@ export default function Chat() {
 						<ChatContainer
 							currentChat={currentChat}
 							socket={socket}
+							currentUser={currentUser}
 						/>
 					)}
 				</div>

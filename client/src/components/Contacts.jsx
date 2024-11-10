@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import Logo from "../assets/logo.png";
-
+import logo from "../assets/logo.png";
+import Logout from "./Logout";
+import Tippy from "@tippyjs/react";
 export default function Contacts({ contacts, changeChat }) {
 	const [currentUserName, setCurrentUserName] = useState(undefined);
 	const [currentUserImage, setCurrentUserImage] = useState(undefined);
 	const [currentSelected, setCurrentSelected] = useState(undefined);
-	const [isHovered, setIsHovered] = useState(false);
 	useEffect(() => {
 		const fetchData = async () => {
 			const data = await JSON.parse(
@@ -22,12 +22,19 @@ export default function Contacts({ contacts, changeChat }) {
 		setCurrentSelected(index);
 		changeChat(contact);
 	};
+
 	return (
 		<>
 			{currentUserImage && currentUserImage && (
 				<div className="bg-light flex flex-col overflow-hidden col-span-2 ">
 					<div className="flex h-full w-full">
-						<div className="w-1/6 bg-primary flex flex-col text-white py-5 justify-between">
+						<div className="w-24 bg-primary flex flex-col text-white py-5 justify-start">
+							<div className="hover:bg-white/30 rounded-full bg-white mb-4 ">
+								<img
+									src={logo}
+									alt=""
+								/>
+							</div>
 							<div className="hover:bg-white/30 rounded-full ">
 								<svg
 									className="size-10 mx-auto"
@@ -52,23 +59,36 @@ export default function Contacts({ contacts, changeChat }) {
 									</g>
 								</svg>
 							</div>
-							<div
-								className={`hover:scale-105 rounded-full relative ${isHovered ? "scale-110" : ""}`}
-								onMouseEnter={() => setIsHovered(true)}
-								onMouseLeave={() => setIsHovered(false)}>
-								<img
-									src={`data:image/svg+xml;base64,${currentUserImage}`}
-									alt="avatar"
-									className="h-14 mx-auto transition-all duration-300"
-								/>
-								<div
-									className={`absolute top-[31%] -right-16 bg-primary px-2 rounded-lg ${isHovered ? "opacity-100" : "opacity-0"} transition-all duration-300`}>
-									<h1 className="text-center">{currentUserName}</h1>
+							<CustomTippy
+								content="Logout"
+								placement="right"
+								arrow={true}
+								className="bg-primary text-white rounded-lg px-3 py-2 shadow-lg text-sm font-medium">
+								<div className="hover:bg-white/30 rounded-full mx-auto mt-auto mb-3 p-2 transition-all duration-300 ease-in-out">
+									<Logout />
 								</div>
-							</div>
+							</CustomTippy>
+
+							<CustomTippy
+								content={currentUserName}
+								placement="right"
+								arrow={true}
+								className="bg-primary text-white rounded-lg px-3 py-2 shadow-lg text-sm font-medium">
+								<div
+									className={`hover:scale-105 rounded-full relative `}
+									id="avatar">
+									<img
+										src={`data:image/svg+xml;base64,${currentUserImage}`}
+										alt="avatar"
+										className="h-14 mx-auto transition-all duration-300"
+									/>
+									<div
+										className={`absolute top-[31%] -right-20  bg-primary px-2 rounded-lg  duration-300`}></div>
+								</div>
+							</CustomTippy>
 						</div>
-						<ScrollableContainer className="flex flex-col items-center overflow-auto gap-1 px-2 row-span-4 w-8/12 mt-2">
-							<h1 className="text-xl font-bold self-start py-5">Chats</h1>
+						<ScrollableContainer className="flex flex-col items-center overflow-auto gap-1 px-2 row-span-4 w-full mt-2">
+							<h1 className="text-xl font-bold self-start p-5">Chats</h1>
 							{contacts.map((contact, index) => {
 								return (
 									<div
@@ -107,5 +127,10 @@ const ScrollableContainer = styled.div`
 		background-color: #ffffff39;
 		width: 0.1rem;
 		border-radius: 1rem;
+	}
+`;
+const CustomTippy = styled(Tippy)`
+	.tippy-arrow {
+		color: #a91d3a;
 	}
 `;

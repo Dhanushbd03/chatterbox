@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import ChatInput from "./ChatInput";
-import Logout from "./Logout";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import styled from "styled-components";
 import { sendMessageRoute, recieveMessageRoute } from "../utils/APIRoutes";
 
-export default function ChatContainer({ currentChat, socket }) {
+const ChatContainer = ({ currentChat, socket, currentUser }) => {
 	const [messages, setMessages] = useState([]);
 	const scrollRef = useRef();
 	const [arrivalMessage, setArrivalMessage] = useState(null);
@@ -40,14 +39,21 @@ export default function ChatContainer({ currentChat, socket }) {
 			message: msg,
 		});
 
-		setMessages((prev) => [...prev, { fromSelf: true, message: msg }]);
+		setMessages((prev) => [
+			...prev,
+			{ fromSelf: true, message: msg, time: new Date().toISOString() },
+		]);
 	};
 
 	useEffect(() => {
 		if (socket.current) {
 			socket.current.off("msg-recieve");
 			socket.current.on("msg-recieve", (msg) => {
-				setArrivalMessage({ fromSelf: false, message: msg });
+				setArrivalMessage({
+					fromSelf: false,
+					message: msg,
+					time: new Date().toISOString(),
+				});
 			});
 		}
 	}, [socket]);
@@ -61,6 +67,46 @@ export default function ChatContainer({ currentChat, socket }) {
 	useEffect(() => {
 		scrollRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages]);
+
+	// Function to format the timestamp
+	function msgTime(time) {
+		const date = new Date(time);
+		const readableDate = date.toLocaleString("en-US", {
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: true,
+		});
+		return readableDate;
+	}
+
+	// Function to group messages by day
+	function groupMessagesByDay(messages) {
+		const groupedMessages = [];
+		let currentGroup = [];
+		let currentDate = null;
+
+		messages.forEach((message) => {
+			const messageDate = new Date(message.time).toLocaleDateString();
+
+			if (messageDate !== currentDate) {
+				if (currentGroup.length > 0) {
+					groupedMessages.push({ date: currentDate, messages: currentGroup });
+				}
+				currentGroup = [];
+				currentDate = messageDate;
+			}
+
+			currentGroup.push(message);
+		});
+
+		if (currentGroup.length > 0) {
+			groupedMessages.push({ date: currentDate, messages: currentGroup });
+		}
+
+		return groupedMessages;
+	}
+
+	const groupedMessages = groupMessagesByDay(messages);
 
 	return (
 		<div className="flex flex-col h-full col-span-6 text-primary">
@@ -77,28 +123,46 @@ export default function ChatContainer({ currentChat, socket }) {
 						<h3>{currentChat.username}</h3>
 					</div>
 				</div>
-				<Logout />
 			</div>
+
 			<ChatMessages className="bg-black flex-grow px-10 space-y-2 flex flex-col max-h-[80vh] overflow-y-scroll py-5">
-				{messages.map((message, index) => {
-					return (
-						<div
-							ref={scrollRef}
-							key={uuidv4()}>
-							<div
-								className={`flex min-w-5 break-words p-4 text-lg rounded-xl text-white max-w-80 ${
-									message.fromSelf ? "bg-indigo-500 ml-auto" : "bg-primary"
-								}`}>
-								<p>{message.message}</p>
-							</div>
+				{groupedMessages.map((group, groupIndex) => (
+					<div key={groupIndex} className="flex flex-col gap-3">
+						<div className="text-center  my-2 bg-primary w-fit mx-auto rounded-full px-3 text-white">
+							{/* Display the date as a heading */}
+							<span>{new Date(group.date).toLocaleDateString()}</span>
 						</div>
-					);
-				})}
+						{group.messages.map((message, messageIndex) => (
+							<div
+								ref={scrollRef}
+								key={uuidv4()}
+								className={`flex items-center gap-2 ${message.fromSelf ? "flex-row-reverse" : "flex-row"}`}>
+								<div>
+									<img
+										src={`data:image/svg+xml;base64,${message.fromSelf ? currentUser.avatarImage : currentChat.avatarImage}`}
+										alt=""
+										className="h-6"
+									/>
+								</div>
+								<div
+									className={`flex flex-col min-w-20 w-fit break-words px-4 py-2 text-lg rounded-xl text-white max-w-80 items-center relative ${
+										message.fromSelf ? "bg-indigo-500 ml-auto" : "bg-primary"
+									} `}>
+									<p className="mr-auto ">{message.message}</p>
+									<span className="text-[8px] text-gray-400 leading-loose absolute bottom-0 right-1">
+										{msgTime(message.time)}
+									</span>
+								</div>
+							</div>
+						))}
+					</div>
+				))}
 			</ChatMessages>
+
 			<ChatInput handleSendMsg={handleSendMsg} />
 		</div>
 	);
-}
+};
 
 const ChatMessages = styled.div`
 	&::-webkit-scrollbar {
@@ -110,3 +174,5 @@ const ChatMessages = styled.div`
 		}
 	}
 `;
+
+export default ChatContainer;

@@ -14,6 +14,7 @@ export const getMessages = async (req, res, next) => {
       return {
         fromSelf: msg.sender.toString() === from,
         message: msg.message.text,
+        time: msg.updatedAt,
       };
     });
     res.json(projectedMessages);

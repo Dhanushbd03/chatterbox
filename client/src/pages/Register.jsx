@@ -126,14 +126,14 @@ export default function Register() {
 					/>
 					<button
 						type="submit"
-						className="bg-blue-600 text-white py-4 px-8 font-bold rounded-lg uppercase hover:bg-blue-700">
+						className="bg-primary text-white py-4 px-8 font-bold rounded-lg uppercase hover:bg-secondary">
 						Create User
 					</button>
-					<span className="text-white text-sm">
+					<span className="text-primary text-base">
 						Already have an account?{" "}
 						<Link
 							to="/login"
-							className="text-blue-600 font-bold">
+							className="text-blue-800 font-bold">
 							Login.
 						</Link>
 					</span>
