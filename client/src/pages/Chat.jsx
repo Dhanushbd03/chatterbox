@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { allUsersRoute, host } from "../utils/APIRoutes";
 import ChatContainer from "../components/ChatContainer";
+import AIChatContainer from "../components/AIChatContainer";
 import Contacts from "../components/Contacts";
 import Welcome from "../components/Welcome";
 
@@ -62,6 +63,10 @@ export default function Chat() {
 					/>
 					{currentChat === undefined ? (
 						<Welcome />
+					) : currentChat.isAI ? (
+						<AIChatContainer
+							currentUser={currentUser}
+						/>
 					) : (
 						<ChatContainer
 							currentChat={currentChat}

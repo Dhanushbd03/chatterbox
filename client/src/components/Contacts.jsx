@@ -3,6 +3,7 @@ import styled from "styled-components";
 import logo from "../assets/logo.png";
 import Logout from "./Logout";
 import Tippy from "@tippyjs/react";
+import { FaRobot } from "react-icons/fa";
 export default function Contacts({ contacts, changeChat }) {
 	const [currentUserName, setCurrentUserName] = useState(undefined);
 	const [currentUserImage, setCurrentUserImage] = useState(undefined);
@@ -89,6 +90,24 @@ export default function Contacts({ contacts, changeChat }) {
 						</div>
 						<ScrollableContainer className="flex flex-col items-center overflow-auto gap-1 px-2 row-span-4 w-full mt-2">
 							<h1 className="text-xl font-bold self-start p-5">Chats</h1>
+							{/* AI Assistant Contact */}
+							<div
+								className={`px-4 py-2 cursor-pointer w-full rounded-full h-fit flex gap-4 items-center transition-all duration-500 ease-in-out ${
+									currentSelected === 'ai' ? "bg-indigo-500 text-white" : "hover:bg-gray-200"
+								}`}
+								onClick={() => {
+									setCurrentSelected('ai');
+									changeChat({ _id: 'ai-assistant', username: 'AI Assistant', isAI: true });
+								}}>
+								<div className="bg-indigo-500 rounded-full p-2">
+									<FaRobot className="text-white text-2xl" />
+								</div>
+								<div>
+									<h3 className="font-semibold">AI Assistant</h3>
+									<p className="text-xs text-gray-500">Chat with AI</p>
+								</div>
+							</div>
+							<div className="w-full border-b border-gray-300 my-2"></div>
 							{contacts.map((contact, index) => {
 								return (
 									<div
